@@ -13,7 +13,7 @@ add_action('shutdown', function() {
     return;
   }
   $count = count($cd2_hook_log_sql_entries);
-  if($count == 0 || $count % 6 != 0) {
+  if($count == 0) {
     return;
   }
   $entryCount = (int)($count / 6);
@@ -22,13 +22,10 @@ add_action('shutdown', function() {
     $valueEntries[] = '(?, ?, ?, ?, ?, ?)';
   }
   try {
-			$dbh = new PDO('mysql:dbname='.DB_NAME.';host='.DB_HOST, DB_USER, DB_PASSWORD, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-			$stmt = $dbh->prepare('INSERT INTO new_table (tag, data, query, body, path, dt) VALUES '.implode(', ', $valueEntries));
-
-			$jsonOpts = (JSON_HEX_QUOT|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_TAG|JSON_PRETTY_PRINT);
-
-			$stmt->execute($cd2_hook_log_sql_entries);
-	} catch( Exception $e ) {
-		  die($e->getMessage());
+    $dbh = new PDO('mysql:dbname='.DB_NAME.';host='.DB_HOST, DB_USER, DB_PASSWORD, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    $stmt = $dbh->prepare('INSERT INTO wp_hook_log (tag, data, query, body, path, dt) VALUES '.implode(', ', $valueEntries));
+    $stmt->execute($cd2_hook_log_sql_entries);
+  } catch( Exception $e ) {
+    die($e->getMessage());
 	}
 });

@@ -24,7 +24,17 @@ register_activation_hook(__FILE__, function() {
   } catch( Exception $e ) {
     die($e->getMessage());
 	}
-});
+} );
+
+register_deactivation_hook( __FILE__, function() {
+  $sql = 'DROP TABLE IF EXISTS `wp_hook_log`';
+  try {
+    $dbh = new PDO('mysql:dbname='.DB_NAME.';host='.DB_HOST, DB_USER, DB_PASSWORD, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    $dbh->query($sql);
+  } catch( Exception $e ) {
+    die($e->getMessage());
+	}
+} );
 
 add_action('shutdown', function() {
   global $cd2_hook_log_sql_entries;
@@ -47,4 +57,4 @@ add_action('shutdown', function() {
   } catch( Exception $e ) {
     die($e->getMessage());
 	}
-});
+} );

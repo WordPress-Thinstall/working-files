@@ -3,7 +3,7 @@
 Plugin Name: CD2 WordPress Hooks DUMP SQL Save
 Description: This plugin is designed to save WordPress Hooks Log (must be generated elsewhere)
 Author: CD2 Team
-Version: 1.00
+Version: 1.05
 Author URI: https://www.codesign2.co.uk/
 */
 
@@ -34,6 +34,26 @@ register_deactivation_hook( __FILE__, function() {
   } catch( Exception $e ) {
     die($e->getMessage());
 	}
+} );
+
+add_action('all', function() {
+  global $cd2_hook_log_sql_entries;
+  if(!is_array($cd2_hook_log_sql_entries)) {
+    $cd2_hook_log_sql_entries = [];
+  }
+  $args = func_get_args();
+  $log = [
+    'args' => $args
+  ]; $n = 0;
+
+  $jsonOpts = (JSON_HEX_QUOT|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_TAG|JSON_PRETTY_PRINT);
+
+  $cd2_hook_log_sql_entries[] = current_filter() ?? 'unknown';
+  $cd2_hook_log_sql_entries[] = json_encode($log, $jsonOpts);
+  $cd2_hook_log_sql_entries[] = json_encode($_GET, $jsonOpts);
+  $cd2_hook_log_sql_entries[] = json_encode($_POST, $jsonOpts);
+  $cd2_hook_log_sql_entries[] = $_SERVER['REQUEST_URI'];
+  $cd2_hook_log_sql_entries[] = date('Y-m-d H:i:s');
 } );
 
 add_action('shutdown', function() {
